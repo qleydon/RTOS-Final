@@ -158,7 +158,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 			Rx_flag_1 = 1;
 		}
 	}
-
 	else if (huart == &huart2)
 		Rx_flag_2 = 1;
 }
@@ -224,8 +223,6 @@ void process_cmd(char name1[], char name2[], char cmd[], char params[]){
 		else if(led == 3){
 			HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, on);
 		}
-		//HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, on);
-		//HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, on);
 	}
 	else if(strcmp(cmd, "cap") == 0||strcmp(cmd, "CAP") == 0){
 		Capture_flag = 1; // this will be read by Cap task
@@ -319,7 +316,6 @@ int main(void)
   MX_ADC1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  //HAL_ADCEx_Calibration_Start(&hadc1, );// calibrate on powerup
   HAL_TIM_Base_Start(&htim2);
   HAL_TIM_Base_Start(&htim4);
   HAL_UART_Receive_IT(&huart2, Rx_data_2, 1);
@@ -861,20 +857,7 @@ void Start_receiveTask(void *argument)
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
 	  if(Rx_flag_1 == 1){
-		  /*
-		  while(rx_char_1 != '\r'){
-			  if(Rx_flag_1 == 1){
-				  HAL_UART_Receive_IT(&huart1, &rx_char_1, 1);
-				  Rx_Buffer_1[idx_1] = rx_char_1;
-				  idx_1++;
-				  Rx_flag_1 = 0;
-			  }
-		  }
-		  */
 		  Rx_flag_1 = 0;
-//		  if(rx_char_1 != '\r'){
-//			  continue;
-//		  }
 		  if(sscanf(Rx_Buffer_1, "<%31[^>] > <%31[^>] > <%31[^>] > <%199[^>] >", name1, name2, cmd, params) == 4) {
 			  if(strcmp(myname_1, name2)!=0){
 				  HAL_UART_Transmit(&huart1, Rx_Buffer_1, DATA_SIZE, 1000);
@@ -913,8 +896,6 @@ void Start_receiveTask(void *argument)
 			  if(strcmp(myname, name2)!=0){
 				  //add <myname>
 				  memset(buffer, 0, sizeof(buffer[0]) * DATA_SIZE);
-				  //strcpy(buffer,"<");
-				  //strcat(buffer,"<");
 				  strcat(buffer,"<");
 				  strcat(buffer, myname);
 				  strcat(buffer,"> ");
@@ -983,10 +964,6 @@ void Start_commandTask(void *argument)
 				val = (sin(j*2*PI/256.0)/2.0 + 0.5)*4095.0 * (running_command.maxv - running_command.minv)/3.3 + 4095.0*running_command.minv/3.3;
 				wave[j] = (int) val;
 			}
-			// reset arr for dac timer
-			// clock at 10 MHz
-			//fwave = ftimer/ns; ftimer= fclock / (ARR+1)
-			// ARR+1 = fclock/(fwave*ns)
 			scale =(int) 10000000 / (running_command.freq*WSz)-1;
 		break;
 		case('T'):
